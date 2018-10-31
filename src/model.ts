@@ -1,4 +1,5 @@
 import { parse } from 'json5';
+import merge from 'deepmerge';
 
 type PermissionAttributes = { [key: string]: string } | null;
 
@@ -125,6 +126,6 @@ export class PermissionList {
     if (results.length === 0) {
       return null;
     }
-    return Object.assign({}, ...results);
+    return results.reduce((prev, x) => merge(prev, x), {});
   };
 }

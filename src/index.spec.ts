@@ -14,7 +14,7 @@ describe('acl', () => {
 
   describe('permission functions', () => {
     const rules =
-      'allow|users:*Name(id:"aa",bool:false,num:50.5)\ndeny|users:middleName';
+      'allow|users:*Name(id:"aa",bool:false,num:50.5,arr:[1])\ndeny|users:middleName\nallow|users(name:"John Doe"):firstName(arr:["aa"])';
 
     it('checkPermissions', () => {
       const checks = [
@@ -36,11 +36,11 @@ describe('acl', () => {
       const attributes = [
         {
           resource: 'users:firstName',
-          attributes: { id: 'aa', bool: false, num: 50.5 }
+          attributes: { id: 'aa', bool: false, num: 50.5, arr: [1, 'aa'] }
         },
         {
           resource: 'users',
-          attributes: null
+          attributes: { name: 'John Doe' }
         },
         {
           resource: 'users:somename',
@@ -48,7 +48,7 @@ describe('acl', () => {
         },
         {
           resource: 'users:Name',
-          attributes: { id: 'aa', bool: false, num: 50.5 }
+          attributes: { id: 'aa', bool: false, num: 50.5, arr: [1] }
         }
       ];
       for (let attribute of attributes) {

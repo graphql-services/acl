@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@types/json5": "^0.0.30",
+    "deepmerge": "^2.2.1",
     "json5": "^2.1.0"
   },
   "devDependencies": {
