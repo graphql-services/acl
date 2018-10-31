@@ -4,10 +4,18 @@
 
 Library for handling Access Control List permissions
 
+## Install
+
+```
+yarn add @graphql/acl
+// or
+npm i --save @graphql/acl
+```
+
 ## Example usage
 
 ```
-import { PermissionList } from 'acl-permissions'
+import { PermissionList } from '@graphql/acl'
 
 const acl = new PermissionList(
     'allow|users:*name\n' + 'deny|users:password\n' + 'allow|tasks:*'
