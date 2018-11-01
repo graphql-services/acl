@@ -24,7 +24,7 @@ describe('acl', () => {
         { resource: 'users:Name', result: true },
         { resource: 'users:name', result: false },
         { resource: 'users:Name', result: true },
-        { resource: 'users:Name:aaa', result: true }
+        { resource: 'users:Name:aaa', result: true },
         { resource: 'users:somename:bbb', result: false }
       ];
       for (let check of checks) {
