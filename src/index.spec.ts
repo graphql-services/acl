@@ -22,7 +22,7 @@ describe('acl', () => {
 
   describe('permission functions', () => {
     const rules =
-      'allow|users:*Name(id:"aa",bool:false,num:50.5,arr:[1])\ndeny|users:middleName\nallow|users(name:"John Doe"):firstName(arr:["aa"])';
+      'allow|users:*Name(id:"aa",bool:false,num:50.5,arr:[1])\ndeny|users:middleName\ndeny|users:firstName:test\nallow|users(name:"John Doe"):firstName(arr:["aa"])';
 
     it('checkPermissions', () => {
       const checks = [
@@ -32,7 +32,7 @@ describe('acl', () => {
         { resource: 'users:Name', result: true },
         { resource: 'users:name', result: false },
         { resource: 'users:Name', result: true },
-        { resource: 'users:Name:aaa', result: true },
+        { resource: 'users:Name:aaa', result: false },
         { resource: 'users:somename:bbb', result: false }
       ];
       for (let check of checks) {
@@ -72,6 +72,29 @@ describe('acl', () => {
         ).toEqual(
           `${attribute.resource}->` + JSON.stringify(attribute.attributes)
         );
+      }
+    });
+  });
+
+  describe('permission functions with wildcard', () => {
+    const rules =
+      'allow|roles*:*\nallow|users:test:*\ndeny|users:test:hello\nallow|car:brand';
+
+    it('checkPermissions', () => {
+      const checks = [
+        { resource: 'roles:blah', result: true },
+        { resource: 'rolesXxaer:blah', result: true },
+        { resource: 'users:test:aaa', result: true },
+        { resource: 'car:brand', result: true },
+        { resource: 'car:brand:aaa', result: false },
+        { resource: 'users:test', result: false },
+        { resource: 'users:test:hello', result: false },
+        { resource: 'users:test:hello:aa', result: true }
+      ];
+      for (let check of checks) {
+        expect(
+          `${check.resource}->` + checkPermissions(rules, check.resource)
+        ).toEqual(`${check.resource}->` + check.result);
       }
     });
   });

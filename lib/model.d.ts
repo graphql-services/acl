@@ -11,7 +11,7 @@ export declare class PermissionResourcePath {
 export declare class PermissionResource {
     paths: PermissionResourcePath[];
     constructor(resource: string);
-    isMatch: (resource: string) => boolean;
+    isMatch: (resource: string, strict?: boolean) => boolean;
     getRuleForResource: (resource: string) => PermissionResourcePath;
     getAttributes: (resource: string) => {
         [key: string]: string;

@@ -26,6 +26,8 @@ export class PermissionResourcePath {
   };
 }
 
+// const wildcardResourcePath = new PermissionResourcePath('*');
+
 export class PermissionResource {
   paths: PermissionResourcePath[];
 
@@ -41,16 +43,23 @@ export class PermissionResource {
     this.paths = results.map(x => new PermissionResourcePath(x));
   }
 
-  isMatch = (resource: string): boolean => {
+  isMatch = (resource: string, strict: boolean = true): boolean => {
     const resourcePaths = resource.split(':');
+
+    if (strict && this.paths.length > resourcePaths.length) {
+      return false;
+    }
+
     for (let i in resourcePaths) {
       const path = this.paths[i];
+      const resourcePath = resourcePaths[i];
 
       if (!path) {
-        return true;
+        const lastPath = this.paths[this.paths.length - 1].path;
+        return lastPath[lastPath.length - 1] === '*';
       }
 
-      if (!path.isMatch(resourcePaths[i])) {
+      if (!path.isMatch(resourcePath)) {
         return false;
       }
     }
@@ -67,7 +76,8 @@ export class PermissionResource {
   };
 
   getAttributes = (resource: string): PermissionAttributes | null => {
-    const rule = this.getRuleForResource(resource);
+    const rule =
+      this.isMatch(resource, false) && this.getRuleForResource(resource);
     return (rule && rule.attributes) || null;
   };
 }
@@ -96,9 +106,10 @@ export class PermissionRule {
   };
 
   getAttributes = (resource: string): PermissionAttributes | null => {
-    return (
-      this.resource.isMatch(resource) && this.resource.getAttributes(resource)
-    );
+    if (this.type === 'deny') {
+      return null;
+    }
+    return this.resource.getAttributes(resource);
   };
 }
 
