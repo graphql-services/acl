@@ -55,13 +55,17 @@ export class PermissionResource {
     return true;
   };
 
-  getLatestRule = (resource: string): PermissionResourcePath => {
-    const index = resource.split(':').length;
-    return this.paths[index - 1];
+  getRuleForResource = (resource: string): PermissionResourcePath | null => {
+    let index = resource.split(':').length - 1;
+    if (index >= this.paths.length) {
+      return null;
+    }
+    return this.paths[index];
   };
 
-  getAttributes = (resource: string): PermissionAttributes => {
-    return this.getLatestRule(resource).attributes;
+  getAttributes = (resource: string): PermissionAttributes | null => {
+    const rule = this.getRuleForResource(resource);
+    return (rule && rule.attributes) || null;
   };
 }
 
@@ -88,7 +92,7 @@ export class PermissionRule {
     return this.type === 'deny' && this.resource.isMatch(resource);
   };
 
-  getAttributes = (resource: string): PermissionAttributes => {
+  getAttributes = (resource: string): PermissionAttributes | null => {
     return (
       this.resource.isMatch(resource) && this.resource.getAttributes(resource)
     );

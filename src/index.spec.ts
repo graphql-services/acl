@@ -23,7 +23,9 @@ describe('acl', () => {
         { resource: 'users:somename', result: false },
         { resource: 'users:Name', result: true },
         { resource: 'users:name', result: false },
-        { resource: 'users:Name', result: true }
+        { resource: 'users:Name', result: true },
+        { resource: 'users:Name:aaa', result: true }
+        { resource: 'users:somename:bbb', result: false }
       ];
       for (let check of checks) {
         expect(
@@ -49,6 +51,10 @@ describe('acl', () => {
         {
           resource: 'users:Name',
           attributes: { id: 'aa', bool: false, num: 50.5, arr: [1] }
+        },
+        {
+          resource: 'users:Name:blah',
+          attributes: null
         }
       ];
       for (let attribute of attributes) {
