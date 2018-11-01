@@ -3,13 +3,21 @@ import { PermissionList, checkPermissions, getAttributes } from './';
 describe('acl', () => {
   it('PermissionList', () => {
     const acl = new PermissionList(
-      'allow|users:*name\n' + 'deny|users:password\n' + 'allow|tasks:*'
+      'allow|users(blah:"foo"):*name(hello:"world",id:123)\n' +
+        'deny|users:password\n' +
+        'allow|tasks:*'
     );
 
     expect(acl.isAllowed('users:username')).toEqual(true);
     expect(acl.isAllowed('users:name')).toEqual(true);
     expect(acl.isAllowed('users:password')).toEqual(false);
     expect(acl.isAllowed('tasks:anything')).toEqual(true);
+
+    expect(acl.getAttributes('users')).toEqual({ blah: 'foo' });
+    expect(acl.getAttributes('users:first_name')).toEqual({
+      hello: 'world',
+      id: 123
+    });
   });
 
   describe('permission functions', () => {
