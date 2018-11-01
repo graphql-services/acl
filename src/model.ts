@@ -1,5 +1,8 @@
 import { parse } from 'json5';
-import merge from 'deepmerge';
+import * as mergeFn from 'deepmerge';
+
+// https://github.com/KyleAMathews/deepmerge/pull/124
+const merge = (mergeFn as any).default || mergeFn;
 
 type PermissionAttributes = { [key: string]: string } | null;
 
