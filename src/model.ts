@@ -120,7 +120,7 @@ export class PermissionRule {
     return this.resource.getAttributes(resource);
   };
 
-  toString(): string {
+  public toString(): string {
     return this.type + '|' + this.resource.toString();
   }
 }

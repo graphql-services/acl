@@ -1,6 +1,6 @@
 import { PermissionList, PermissionRule } from './model';
 
-export { PermissionList } from './model';
+export { PermissionList, PermissionRule } from './model';
 
 export const checkPermissions = (
   permissions: string,
