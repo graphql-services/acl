@@ -1,4 +1,9 @@
-import { PermissionList, checkPermissions, getAttributes } from './';
+import {
+  PermissionList,
+  checkPermissions,
+  getAttributes,
+  getDenialRule
+} from './';
 
 describe('acl', () => {
   it('PermissionList', () => {
@@ -95,6 +100,45 @@ describe('acl', () => {
         expect(
           `${check.resource}->` + checkPermissions(rules, check.resource)
         ).toEqual(`${check.resource}->` + check.result);
+      }
+    });
+  });
+
+  describe('other permissions', () => {
+    const rules = [
+      `allow|jobs(filter:{doctor:{id:"aaa"}})`,
+      `allow|job(id:5,filter:{doctor:{id:"aaa"}})`,
+      `allow|file*`,
+      `allow|comment*`,
+      `deny|job:transferToCooperatingTechnicianDate`,
+      `deny|job:cooperatingTechnician`,
+      `deny|job:detail`
+    ].join('\n');
+
+    it('check permissions', () => {
+      const checks = [
+        {
+          resource: 'job',
+          result: true,
+          denialRule: null
+        },
+        {
+          resource: 'Query:job',
+          result: false,
+          denialRule: null
+        },
+        { resource: 'files', result: true, denialRule: null },
+        { resource: 'job:detail', result: false, denialRule: `deny|job:detail` }
+      ];
+      for (let check of checks) {
+        expect(
+          `${check.resource}->` + checkPermissions(rules, check.resource)
+        ).toEqual(`${check.resource}->` + check.result);
+
+        const rule = getDenialRule(rules, check.resource);
+        expect(
+          `${check.resource}->${(rule && rule.toString()) || null}`
+        ).toEqual(`${check.resource}->${check.denialRule}`);
       }
     });
   });

@@ -43,6 +43,10 @@ export class PermissionResource {
     this.paths = results.map(x => new PermissionResourcePath(x));
   }
 
+  toString(): string {
+    return this.paths.map(x => x.path).join(':');
+  }
+
   isMatch = (resource: string, strict: boolean = true): boolean => {
     const resourcePaths = resource.split(':');
 
@@ -97,12 +101,16 @@ export class PermissionRule {
     this.resource = new PermissionResource(resource);
   }
 
+  isMatch = (resource: string): boolean => {
+    return this.resource.isMatch(resource);
+  };
+
   isAllowed = (resource: string): boolean => {
-    return this.type === 'allow' && this.resource.isMatch(resource);
+    return this.type === 'allow' && this.isMatch(resource);
   };
 
   isDenied = (resource: string): boolean => {
-    return this.type === 'deny' && this.resource.isMatch(resource);
+    return this.type === 'deny' && this.isMatch(resource);
   };
 
   getAttributes = (resource: string): PermissionAttributes | null => {
@@ -111,6 +119,10 @@ export class PermissionRule {
     }
     return this.resource.getAttributes(resource);
   };
+
+  toString(): string {
+    return this.type + '|' + this.resource.toString();
+  }
 }
 
 export class PermissionList {
@@ -125,16 +137,28 @@ export class PermissionList {
 
   public isAllowed = (resource: string): boolean => {
     let allowed = false;
-    for (let rule of this.rules) {
-      if (rule.isAllowed(resource)) {
+    for (let rule of this.getMatchingRules(resource)) {
+      if (rule.type === 'allow') {
         allowed = true;
-      }
-      if (rule.isDenied(resource)) {
+      } else if (rule.type === 'deny') {
         allowed = false;
         break;
       }
     }
     return allowed;
+  };
+
+  public getMatchingRules = (resource: string): PermissionRule[] => {
+    let result = [];
+    for (let rule of this.rules) {
+      if (rule.isMatch(resource)) {
+        result.push(rule);
+        if (rule.type === 'deny') {
+          break;
+        }
+      }
+    }
+    return result;
   };
 
   public getAttributes = (resource: string): PermissionAttributes => {
