@@ -106,8 +106,7 @@ describe('acl', () => {
 
   describe('other permissions', () => {
     const rules = [
-      `allow|jobs(filter:{doctor:{id:"aaa"}})`,
-      `allow|job(id:5,filter:{doctor:{id:"aaa"}})`,
+      `allow|job*(id:5,filter:{doctor:{id:"aaa"}})`,
       `allow|file*`,
       `allow|comment*`,
       `deny|job:transferToCooperatingTechnicianDate`,
@@ -119,6 +118,21 @@ describe('acl', () => {
       const checks = [
         {
           resource: 'job',
+          result: true,
+          denialRule: null
+        },
+        {
+          resource: 'jobs',
+          result: true,
+          denialRule: null
+        },
+        {
+          resource: 'jobs:count',
+          result: true,
+          denialRule: null
+        },
+        {
+          resource: 'jobsblah:items',
           result: true,
           denialRule: null
         },
