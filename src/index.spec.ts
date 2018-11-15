@@ -106,15 +106,15 @@ describe('acl', () => {
 
   describe('other permissions', () => {
     const rules = [
-      `allow|job*(id:5,filter:{doctor:{id:"aaa"}})`,
+      `allow|jobs?(id:5,filter:{user:{id:"aaa"}}):*`,
       `allow|file*`,
       `allow|comment*`,
-      `deny|job:transferToCooperatingTechnicianDate`,
-      `deny|job:cooperatingTechnician`,
+      `deny|job:blah`,
+      `deny|job:foo`,
       `deny|job:detail`
     ].join('\n');
 
-    it('check permissions', () => {
+    it.only('check permissions', () => {
       const checks = [
         {
           resource: 'job',
@@ -132,9 +132,19 @@ describe('acl', () => {
           denialRule: null
         },
         {
-          resource: 'jobsblah:items',
+          resource: 'job:count',
           result: true,
           denialRule: null
+        },
+        {
+          resource: 'jobsblah:items',
+          result: false,
+          denialRule: null
+        },
+        {
+          resource: 'job:blah',
+          result: false,
+          denialRule: 'deny|job:blah'
         },
         {
           resource: 'Query:job',

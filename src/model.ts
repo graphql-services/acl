@@ -50,8 +50,12 @@ export class PermissionResource {
   isMatch = (resource: string, strict: boolean = true): boolean => {
     const resourcePaths = resource.split(':');
 
+    console.log('??', this.paths.length, '=>', resourcePaths.length, strict);
+
     if (strict && this.paths.length > resourcePaths.length) {
-      return false;
+      if (this.paths[this.paths.length - 1].path !== '*') {
+        return false;
+      }
     }
 
     for (let i in resourcePaths) {
