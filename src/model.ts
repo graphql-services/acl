@@ -47,11 +47,17 @@ export class PermissionResource {
     return this.paths.map(x => x.path).join(':');
   }
 
-  isMatch = (resource: string, strict: boolean = true): boolean => {
+  isMatch = (resource: string, strict = true): boolean => {
     const resourcePaths = resource.split(':');
 
-    if (strict && this.paths.length > resourcePaths.length) {
-      if (this.paths[this.paths.length - 1].path !== '*') {
+    if (strict) {
+      if (this.paths.length > resourcePaths.length + 1) {
+        return false;
+      }
+      if (
+        this.paths.length > resourcePaths.length &&
+        this.paths[this.paths.length - 1].path !== '*'
+      ) {
         return false;
       }
     }
@@ -103,8 +109,8 @@ export class PermissionRule {
     this.resource = new PermissionResource(resource);
   }
 
-  isMatch = (resource: string): boolean => {
-    return this.resource.isMatch(resource);
+  isMatch = (resource: string, strict = false): boolean => {
+    return this.resource.isMatch(resource, strict);
   };
 
   isAllowed = (resource: string): boolean => {
@@ -137,9 +143,9 @@ export class PermissionList {
       .map(line => new PermissionRule(line));
   }
 
-  public isAllowed = (resource: string): boolean => {
+  public isAllowed = (resource: string, strict = false): boolean => {
     let allowed = false;
-    for (let rule of this.getMatchingRules(resource)) {
+    for (let rule of this.getMatchingRules(resource, strict)) {
       if (rule.type === 'allow') {
         allowed = true;
       } else if (rule.type === 'deny') {
@@ -150,10 +156,13 @@ export class PermissionList {
     return allowed;
   };
 
-  public getMatchingRules = (resource: string): PermissionRule[] => {
+  public getMatchingRules = (
+    resource: string,
+    strict = false
+  ): PermissionRule[] => {
     let result = [];
     for (let rule of this.rules) {
-      if (rule.isMatch(resource)) {
+      if (rule.isMatch(resource, strict)) {
         result.push(rule);
         if (rule.type === 'deny') {
           break;

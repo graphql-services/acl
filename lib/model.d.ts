@@ -22,7 +22,7 @@ export declare class PermissionRule {
     type: 'allow' | 'deny';
     resource: PermissionResource;
     constructor(rule: string);
-    isMatch: (resource: string) => boolean;
+    isMatch: (resource: string, strict?: boolean) => boolean;
     isAllowed: (resource: string) => boolean;
     isDenied: (resource: string) => boolean;
     getAttributes: (resource: string) => {
@@ -33,8 +33,8 @@ export declare class PermissionRule {
 export declare class PermissionList {
     rules: PermissionRule[];
     constructor(permissions: string);
-    isAllowed: (resource: string) => boolean;
-    getMatchingRules: (resource: string) => PermissionRule[];
+    isAllowed: (resource: string, strict?: boolean) => boolean;
+    getMatchingRules: (resource: string, strict?: boolean) => PermissionRule[];
     getAttributes: (resource: string) => {
         [key: string]: string;
     };

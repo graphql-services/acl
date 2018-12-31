@@ -111,7 +111,8 @@ describe('acl', () => {
       `allow|comment*`,
       `deny|job:blah`,
       `deny|job:foo`,
-      `deny|job:detail`
+      `deny|job:detail`,
+      `allow|*:User*:*`
     ].join('\n');
 
     it.only('check permissions', () => {
@@ -152,14 +153,19 @@ describe('acl', () => {
           denialRule: null
         },
         { resource: 'files', result: true, denialRule: null },
-        { resource: 'job:detail', result: false, denialRule: `deny|job:detail` }
+        {
+          resource: 'job:detail',
+          result: false,
+          denialRule: `deny|job:detail`
+        },
+        { resource: 'deleteUser', result: false, denialRule: null }
       ];
       for (let check of checks) {
         expect(
-          `${check.resource}->` + checkPermissions(rules, check.resource)
+          `${check.resource}->` + checkPermissions(rules, check.resource, true)
         ).toEqual(`${check.resource}->` + check.result);
 
-        const rule = getDenialRule(rules, check.resource);
+        const rule = getDenialRule(rules, check.resource, true);
         expect(
           `${check.resource}->${(rule && rule.toString()) || null}`
         ).toEqual(`${check.resource}->${check.denialRule}`);
