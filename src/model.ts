@@ -50,19 +50,16 @@ export class PermissionResource {
   isMatch = (resource: string, strict = true): boolean => {
     const resourcePaths = resource.split(':');
 
-    if (strict) {
+    if (strict && this.paths.length > resourcePaths.length) {
       if (this.paths.length > resourcePaths.length + 1) {
         return false;
       }
-      if (
-        this.paths.length > resourcePaths.length &&
-        this.paths[this.paths.length - 1].path !== '*'
-      ) {
+      if (this.paths[this.paths.length - 1].path !== '*') {
         return false;
       }
     }
 
-    for (let i in resourcePaths) {
+    for (const i in resourcePaths) {
       const path = this.paths[i];
       const resourcePath = resourcePaths[i];
 
@@ -109,8 +106,8 @@ export class PermissionRule {
     this.resource = new PermissionResource(resource);
   }
 
-  isMatch = (resource: string, strict = false): boolean => {
-    return this.resource.isMatch(resource, strict);
+  isMatch = (resource: string): boolean => {
+    return this.resource.isMatch(resource);
   };
 
   isAllowed = (resource: string): boolean => {
@@ -143,9 +140,9 @@ export class PermissionList {
       .map(line => new PermissionRule(line));
   }
 
-  public isAllowed = (resource: string, strict = false): boolean => {
+  public isAllowed = (resource: string): boolean => {
     let allowed = false;
-    for (let rule of this.getMatchingRules(resource, strict)) {
+    for (let rule of this.getMatchingRules(resource)) {
       if (rule.type === 'allow') {
         allowed = true;
       } else if (rule.type === 'deny') {
@@ -156,13 +153,10 @@ export class PermissionList {
     return allowed;
   };
 
-  public getMatchingRules = (
-    resource: string,
-    strict = false
-  ): PermissionRule[] => {
+  public getMatchingRules = (resource: string): PermissionRule[] => {
     let result = [];
     for (let rule of this.rules) {
-      if (rule.isMatch(resource, strict)) {
+      if (rule.isMatch(resource)) {
         result.push(rule);
         if (rule.type === 'deny') {
           break;

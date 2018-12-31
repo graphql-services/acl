@@ -4,11 +4,10 @@ export { PermissionList, PermissionRule } from './model';
 
 export const checkPermissions = (
   permissions: string,
-  resource: string,
-  strict = false
+  resource: string
 ): boolean => {
   const p = new PermissionList(permissions);
-  return p.isAllowed(resource, strict);
+  return p.isAllowed(resource);
 };
 
 export const getAttributes = (
@@ -21,19 +20,17 @@ export const getAttributes = (
 
 export const getMatchingRules = (
   permissions: string,
-  resource: string,
-  strict = false
+  resource: string
 ): PermissionRule[] => {
   const p = new PermissionList(permissions);
-  return p.getMatchingRules(resource, strict);
+  return p.getMatchingRules(resource);
 };
 
 export const getDenialRule = (
   permissions: string,
-  resource: string,
-  strict = false
+  resource: string
 ): PermissionRule | null => {
-  const rules = getMatchingRules(permissions, resource, strict);
+  const rules = getMatchingRules(permissions, resource);
   const lastRule = rules.length > 0 ? rules[rules.length - 1] : null;
   if (lastRule && lastRule.type === 'deny') {
     return lastRule;

@@ -8,9 +8,11 @@ import {
 describe('acl', () => {
   it('PermissionList', () => {
     const acl = new PermissionList(
-      'allow|users(blah:"foo"):*name(hello:"world",id:123)\n' +
-        'deny|users:password\n' +
+      [
+        'allow|users(blah:"foo"):*name(hello:"world",id:123)',
+        'deny|users:password',
         'allow|tasks:*'
+      ].join('\n')
     );
 
     expect(acl.isAllowed('users:username')).toEqual(true);
@@ -26,8 +28,14 @@ describe('acl', () => {
   });
 
   describe('permission functions', () => {
-    const rules =
-      'allow|users:*Name(id:"aa",bool:false,num:50.5,arr:[1])\ndeny|users:middleName\ndeny|users:firstName:test\nallow|users(name:"John Doe"):firstName(arr:["aa"])';
+    const rules = [
+      'allow|users:*Name(id:"aa",bool:false,num:50.5,arr:[1])',
+      'deny|users:middleName',
+      'deny|users:firstName:test',
+      'allow|users(name:"John Doe"):firstName(arr:["aa"])',
+      'allow|users(name:"blah"):foo',
+      'allow|users(name:"Jane Siri")'
+    ].join('\n');
 
     it('checkPermissions', () => {
       const checks = [
@@ -41,9 +49,14 @@ describe('acl', () => {
         { resource: 'users:somename:bbb', result: false }
       ];
       for (let check of checks) {
+        const rule = getDenialRule(rules, check.resource);
         expect(
-          `${check.resource}->` + checkPermissions(rules, check.resource)
-        ).toEqual(`${check.resource}->` + check.result);
+          `${check.resource}->` +
+            checkPermissions(rules, check.resource) +
+            `->${rule && rule.toString()}`
+        ).toEqual(
+          `${check.resource}->` + check.result + `->${rule && rule.toString()}`
+        );
       }
     });
 
@@ -55,7 +68,7 @@ describe('acl', () => {
         },
         {
           resource: 'users',
-          attributes: { name: 'John Doe' }
+          attributes: { name: 'Jane Siri' }
         },
         {
           resource: 'users:somename',
@@ -82,8 +95,12 @@ describe('acl', () => {
   });
 
   describe('permission functions with wildcard', () => {
-    const rules =
-      'allow|roles*:*\nallow|users:test:*\ndeny|users:test:hello\nallow|car:brand';
+    const rules = [
+      'allow|roles*:*',
+      'allow|users:test:*',
+      'deny|users:test:hello',
+      'allow|car:brand'
+    ].join('\n');
 
     it('checkPermissions', () => {
       const checks = [
@@ -92,7 +109,7 @@ describe('acl', () => {
         { resource: 'users:test:aaa', result: true },
         { resource: 'car:brand', result: true },
         { resource: 'car:brand:aaa', result: false },
-        { resource: 'users:test', result: false },
+        { resource: 'users:test', result: true },
         { resource: 'users:test:hello', result: false },
         { resource: 'users:test:hello:aa', result: true }
       ];
@@ -115,7 +132,7 @@ describe('acl', () => {
       `allow|*:User*:*`
     ].join('\n');
 
-    it.only('check permissions', () => {
+    it('check permissions', () => {
       const checks = [
         {
           resource: 'job',
