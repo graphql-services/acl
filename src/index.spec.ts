@@ -179,10 +179,10 @@ describe('acl', () => {
       ];
       for (let check of checks) {
         expect(
-          `${check.resource}->` + checkPermissions(rules, check.resource, true)
+          `${check.resource}->` + checkPermissions(rules, check.resource)
         ).toEqual(`${check.resource}->` + check.result);
 
-        const rule = getDenialRule(rules, check.resource, true);
+        const rule = getDenialRule(rules, check.resource);
         expect(
           `${check.resource}->${(rule && rule.toString()) || null}`
         ).toEqual(`${check.resource}->${check.denialRule}`);
